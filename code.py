@@ -89,6 +89,14 @@ def rainbow_cycle(wait = 0.001, direction = 1, offset = 0, step = 1, mirror = Tr
             pixel_id = (i * step + pixel_offset) % num_pixels
         #     affected_pixels.append(pixel_id)
             pixels[pixel_id] = wheel(pixel_index & 255)
+        
+            current_color = pixels[i]
+            new_color = wheel(pixel_index & 255)
+            pixels[i] = (
+                int(current_color[0] * 0.9 + new_color[0] * 0.1),
+                int(current_color[1] * 0.9 + new_color[1] * 0.1),
+                int(current_color[2] * 0.9 + new_color[2] * 0.1)
+            )
         # for i in range(num_pixels):
         #     if i not in affected_pixels:
         #         current_color = pixels[i]
@@ -117,6 +125,7 @@ while True:
     wait = random.uniform(0.001, 0.01)
     direction = random.choice([-1, 1])
     offset = random.randint(0, 255)
+    offset = 0
     step = random.randint(1, 3)
     mirror = random.choice([True, False])
     print(f"wait: {wait}, direction: {direction}, offset: {offset}, step: {step}, mirror: {mirror}")
