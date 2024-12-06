@@ -74,7 +74,7 @@ def wheel(pos):
     return (r, g, b)
 
 
-def rainbow_cycle(wait = 0.001, direction = 1, offset = 0, step = 1, mirror = True, erase_step = 2, erase = True,fade_speed = 0.05):
+def rainbow_cycle(wait = 0.001, direction = 1, offset = 0, step = 1, mirror = True, erase_step = 2, erase = True,fade_speed = 0.02):
     global tick_count
     
     for j in range(512):
