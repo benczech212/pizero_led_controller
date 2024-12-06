@@ -93,9 +93,8 @@ def color_wipe(color, wait=0.01):
             if j == i:
                 pixels[i] = color
             else:
-                pixels[i] = (int(color[0] * (1 - (i / num_pixels))), 
-                             int(color[1] * (1 - (i / num_pixels))), 
-                             int(color[2] * (1 - (i / num_pixels))))
+                current_color = pixels[i]
+                pixels[i] = (int(current_color[0] * 0.9), int(current_color[1] * 0.9), int(current_color[2] * 0.9))
         pixels.show()
 
 while True:
