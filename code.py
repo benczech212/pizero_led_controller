@@ -82,7 +82,8 @@ def rainbow_cycle(wait = 0.001, direction = 1, offset = 0, step = 1, mirror = Tr
                 pixel_index = num_pixels - pixel_index - 1
             else:
                 pixel_index = (i * 256 // num_pixels) + j * direction + offset
-            pixels[i] = wheel(pixel_index & 255)
+            pixel_id = (i * step) % num_pixels
+            pixels[pixel_id] = wheel(pixel_index & 255)
         pixels.show()
         time.sleep(wait)
 
