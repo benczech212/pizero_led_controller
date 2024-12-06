@@ -5,6 +5,7 @@ import time
 import board
 import neopixel
 import time
+import random
 # from watchdog.observers import Observer
 # from watchdog.events import FileSystemEventHandler
 # import subprocess
@@ -88,5 +89,11 @@ def rainbow_cycle(wait = 0.001, direction = 1, offset = 0, step = 1, mirror = Tr
 
 while True:
    
-
-    rainbow_cycle(0.001)  # rainbow cycle with 1ms delay per step
+    wait = random.uniform(0.001, 0.01)
+    direction = random.choice([-1, 1])
+    offset = random.randint(0, 255)
+    step = random.randint(1, 3)
+    mirror = random.choice([True, False])
+    print(f"wait: {wait}, direction: {direction}, offset: {offset}, step: {step}, mirror: {mirror}")
+    for i in range(512):
+        rainbow_cycle(wait, direction, offset, step, mirror)
