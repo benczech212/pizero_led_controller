@@ -97,6 +97,9 @@ def rainbow_cycle(wait = 0.001, direction = 1, offset = 0, step = 1, mirror = Tr
         pixels.show()
         tick_count += 1
         time.sleep(wait)
+        for i in range(num_pixels):
+            current_color = pixels[i]
+            pixels[i] = (int(current_color[0] * 0.9), int(current_color[1] * 0.9), int(current_color[2] * 0.9))
 
 def color_wipe(color, wait=0.01):
     for i in range(num_pixels):
