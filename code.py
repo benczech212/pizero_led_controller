@@ -74,7 +74,7 @@ def wheel(pos):
     return (r, g, b)
 
 
-def rainbow_cycle(wait = 0.001, direction = 1, offset = 0, step = 1, mirror = True, erase_step = 2, erase = True,fade_speed = 0.1):
+def rainbow_cycle(wait = 0.001, direction = 1, offset = 0, step = 1, mirror = True, erase_step = 2, erase = True,fade_speed = 0.05):
     global tick_count
     
     for j in range(255):
@@ -133,6 +133,6 @@ while True:
     step = random.randint(1, 3)
     mirror = random.choice([True, False])
     print(f"wait: {wait}, direction: {direction}, offset: {offset}, step: {step}, mirror: {mirror}")
-    for i in range(512):
+    for i in range(1024):
         rainbow_cycle(wait, direction, offset, step, mirror)
         # color_wipe(wheel(i), wait)
