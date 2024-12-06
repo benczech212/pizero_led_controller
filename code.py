@@ -78,15 +78,22 @@ def rainbow_cycle(wait = 0.001, direction = 1, offset = 0, step = 1, mirror = Tr
     global tick_count
     
     for j in range(255):
-        pixel_offset = tick_count // 8
+        pixel_offset = tick_count // 64
         for i in range(num_pixels):
+            affected_pixels = []
             if mirror:
                 pixel_index = (i * 256 // num_pixels) + tick_count * direction + offset
                 pixel_index = num_pixels - pixel_index - 1
             else:
                 pixel_index = (i * 256 // num_pixels) + tick_count * direction + offset
             pixel_id = (i * step + pixel_offset) % num_pixels
+            affected_pixels.append(pixel_id)
             pixels[pixel_id] = wheel(pixel_index & 255)
+        for i in range(num_pixels):
+            if i not in affected_pixels:
+                current_color = pixels[i]
+                pixels[i] = (int(current_color[0] * 0.9), int(current_color[1] * 0.9), int(current_color[2] * 0.9))
+
         pixels.show()
         tick_count += 1
         time.sleep(wait)
