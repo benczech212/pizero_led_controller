@@ -75,6 +75,7 @@ def wheel(pos):
 
 
 def rainbow_cycle(wait = 0.001, direction = 1, offset = 0, step = 1, mirror = True):
+    global tick_count
     for j in range(255):
         for i in range(num_pixels):
             if mirror:
@@ -85,6 +86,7 @@ def rainbow_cycle(wait = 0.001, direction = 1, offset = 0, step = 1, mirror = Tr
             pixel_id = (i * step) % num_pixels
             pixels[pixel_id] = wheel(pixel_index & 255)
         pixels.show()
+        tick_count += 1
         time.sleep(wait)
 
 def color_wipe(color, wait=0.01):
