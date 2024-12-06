@@ -75,17 +75,17 @@ def wheel(pos):
 
 
 def rainbow_cycle(wait = 0.001, direction = 1, offset = 0, step = 1, mirror = True):
-    for j in range(255):
-        for i in range(num_pixels):
-            if mirror:
-                pixel_index = (i * 256 // num_pixels) + j * direction + offset
-                pixel_index = num_pixels - pixel_index - 1
-            else:
-                pixel_index = (i * 256 // num_pixels) + j * direction + offset
-            pixel_id = (i * step) % num_pixels
-            pixels[pixel_id] = wheel(pixel_index & 255)
-        pixels.show()
-        time.sleep(wait)
+    # for j in range(255):
+    for i in range(num_pixels):
+        if mirror:
+            pixel_index = (i * 256 // num_pixels) + tick_count * direction + offset
+            pixel_index = num_pixels - pixel_index - 1
+        else:
+            pixel_index = (i * 256 // num_pixels) + tick_count * direction + offset
+        pixel_id = (i * step) % num_pixels
+        pixels[pixel_id] = wheel(pixel_index & 255)
+    pixels.show()
+    time.sleep(wait)
 
 def color_wipe(color, wait=0.01):
     for i in range(num_pixels):
@@ -97,6 +97,7 @@ def color_wipe(color, wait=0.01):
                 pixels[i] = (int(current_color[0] * 0.9), int(current_color[1] * 0.9), int(current_color[2] * 0.9))
         pixels.show()
 
+tick_count = 0
 while True:
    
     wait = random.uniform(0.001, 0.01)
@@ -106,5 +107,5 @@ while True:
     mirror = random.choice([True, False])
     print(f"wait: {wait}, direction: {direction}, offset: {offset}, step: {step}, mirror: {mirror}")
     for i in range(512):
-        # rainbow_cycle(wait, direction, offset, step, mirror)
-        color_wipe(wheel(i), wait)
+        rainbow_cycle(wait, direction, offset, step, mirror)
+        # color_wipe(wheel(i), wait)
