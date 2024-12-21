@@ -1,7 +1,9 @@
 #!/bin/bash
+hostname="led-controller"
+
 
 while true; do
-    ssh led-controller && break
+    ssh $hostname && break
     echo "Retrying in 5 seconds..."
     sleep 5
 done

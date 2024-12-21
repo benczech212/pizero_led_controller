@@ -7,7 +7,7 @@
     "python.analysis.extraPaths": [
         "",
         "/home/benczech/.vscode-server/extensions/joedevivo.vscode-circuitpython-0.2.0-linux-x64/stubs",
-        "/home/benczech/.vscode-server/data/User/globalStorage/joedevivo.vscode-circuitpython/bundle/20241206/adafruit-circuitpython-bundle-py-20241206/lib"
+        "/home/benczech/.vscode-server/data/User/globalStorage/joedevivo.vscode-circuitpython/bundle/20241221/adafruit-circuitpython-bundle-py-20241221/lib"
     ],
     "circuitpython.board.version": null
 }

@@ -113,26 +113,179 @@ def rainbow_cycle(wait = 0.001, direction = 1, offset = 0, step = 1, mirror = Tr
             current_color = pixels[i]
             pixels[i] = (int(current_color[0] * (1-fade_speed)), int(current_color[1] * (1-fade_speed)), int(current_color[2] * (1-fade_speed)))
 
-def color_wipe(color, wait=0.01):
-    for i in range(num_pixels):
-        for j in range(num_pixels):
-            if j == i:
-                pixels[i] = color
-            else:
-                current_color = pixels[i]
-                pixels[i] = (int(current_color[0] * 0.9), int(current_color[1] * 0.9), int(current_color[2] * 0.9))
-        pixels.show()
+def wrap_value(value, min_value, max_value):
+    while value < min_value:
+        value += max_value - min_value
+    value %= max_value
+    return value
+def lerp(a, b, t):
+    return a + (b - a) * t
+def lerp_color(color1, color2, t):
+    return (
+        int(lerp(color1[0], color2[0], t)),
+        int(lerp(color1[1], color2[1], t)),
+        int(lerp(color1[2], color2[2], t))
+    )
+
+def rgb_to_hsv(r, g, b):
+    r, g, b = r / 255, g / 255, b / 255
+    cmax = max(r, g, b)
+    cmin = min(r, g, b)
+    delta = cmax - cmin
+
+    if delta == 0:
+        h = 0
+    elif cmax == r:
+        h = (60 * ((g - b) / delta) + 360) % 360
+    elif cmax == g:
+        h = (60 * ((b - r) / delta) + 120) % 360
+    elif cmax == b:
+        h = (60 * ((r - g) / delta) + 240) % 360
+
+    if cmax == 0:
+        s = 0
+    else:
+        s = delta / cmax
+
+    v = cmax
+
+    return h, s, v
+
+def hsv_to_rgb(h, s, v):
+    c = v * s
+    x = c * (1 - abs((h / 60) % 2 - 1))
+    m = v - c
+
+    if 0 <= h < 60:
+        r, g, b = c, x, 0
+    elif 60 <= h < 120:
+        r, g, b = x, c, 0
+    elif 120 <= h < 180:
+        r, g, b = 0, c, x
+    elif 180 <= h < 240:
+        r, g, b = 0, x, c
+    elif 240 <= h < 300:
+        r, g, b = x, 0, c
+    elif 300 <= h < 360:
+        r, g, b = c, 0, x
+
+    r, g, b = (r + m) * 255, (g + m) * 255, (b + m) * 255
+
+    return int(r), int(g), int(b)
+
+
+class Brush:
+    def __init__(self, pixel_buffer, position = 0, hue = 0, size = 1, speed = 0.001, direction = 1, offset = 0, step = 1, mirror = True,hue_change_per_age = 0.01):
+        self.position = position
+        self.size = size
+        self.speed = speed
+        self.direction = direction
+        self.offset = offset
+        self.step = step
+        self.mirror = mirror
+        self.pixel_buffer = pixel_buffer
+        self.total_pixels = pixel_buffer.num_pixels
+        # self.fade_speed = fade_speed
+        self.age = 0
+        self.hue_offset = random.uniform(0,1)
+        self.hue = hue
+        self.hue_change_per_age = hue_change_per_age
+        
+    def get_color(self):
+        return hsv_to_rgb(wrap_value(self.hue + self.hue_offset,0,1)*255, 1, 1)
+
+    def draw(self):
+        pixel_id_offset = wrap_value(int(self.position * self.total_pixels) + self.offset, 0, self.total_pixels)
+        for i in range(self.size):
+            pixel_id_primary = wrap_value(pixel_id_offset + (i * self.step), 0, self.total_pixels) 
+            self.pixel_buffer.add_color(pixel_id_primary, self.get_color())
+            if self.mirror:
+                pixel_id_mirror = wrap_value(self.total_pixels - pixel_id_primary - 1, 0, self.total_pixels)
+                self.pixel_buffer.add_color(pixel_id_mirror, self.get_color())
+
+            
+
+    def move(self):
+        self.position += (self.speed * self.direction)
+        self.position %= 1
+        self.hue = wrap_value(self.hue + self.hue_change_per_age, 0, 1)
+        self.age += 1
+    
 
 tick_count = 0
+pixels.fill((0, 0, 0))
+pixels.show()
+
+
+
+class PixelBuffer:
+    def __init__(self, num_pixels, fade_speed = 0.01):
+        self.num_pixels = num_pixels
+        self.pixel_buffer = [[(0, 0, 0)] for i in range(num_pixels)]
+        self.fade_speed = fade_speed
+
+    def add_color(self, pixel_id, color):
+        self.pixel_buffer[pixel_id].append(color)
+    
+    def clear_color(self, pixel_id):
+        self.pixel_buffer[pixel_id] = [(0, 0, 0)]
+
+    def blend(self):
+        for i in range(self.num_pixels):
+            if len(self.pixel_buffer[i]) > 1:
+                self.pixel_buffer[i] = [lerp_color(self.pixel_buffer[i][0], self.pixel_buffer[i][1], 0.1)]
+            else:
+                self.pixel_buffer[i] = [self.pixel_buffer[i][0]]
+    def fade_all(self):
+        self.blend()
+        for i in range(self.num_pixels):
+            self.pixel_buffer[i] = [(int(self.pixel_buffer[i][0][0] * (1-self.fade_speed)), int(self.pixel_buffer[i][0][1] * (1-self.fade_speed)), int(self.pixel_buffer[i][0][2] * (1-self.fade_speed)))]
+
+
+
+            
+
+    def set_pixels(self):
+        for pixel_id, colors in enumerate(self.pixel_buffer):
+            pixels[pixel_id] = colors[0]
+buf = PixelBuffer(num_pixels)
+
+
+brushes = [
+    Brush(buf, position = 0.5, hue = 0.001, size = 1, speed = 0.0007, direction = 1, offset = 0, step = 1, mirror = True, hue_change_per_age = 0.001),
+# Brush(buf, position = 0.5, hue = 0.100, size = 1, speed = 0.006, direction = -1, offset = 0, step = 1, mirror = True),
+# Brush(buf, position = 0.5, hue = 0.200, size = 1, speed = 0.0009, direction = 1, offset = 0, step = 1, mirror = True, hue_change_per_age = random.uniform(0.0001, 0.0005)),
+Brush(buf, position = 0.5, hue = 0.300, size = 1, speed = 0.0004, direction = -1, offset = 0, step = 1, mirror = True, hue_change_per_age = 0.004),
+# Brush(buf, position = 0.5, hue = 0.400, size = 8, speed = 0.0003, direction = 1, offset = 0, step = 1, mirror = True, hue_change_per_age = random.uniform(0.0001, 0.0005)),
+# Brush(buf, position = 0.5, hue = 0.500, size = 1, speed = 0.002, direction = -1, offset = 0, step = 1, mirror = True, hue_change_per_age = random.uniform(0.0001, 0.0005)),
+# Brush(buf, position = 0.5, hue = 0.600, size = 4, speed = 0.0001, direction = 1, offset = 0, step = 1, mirror = True, hue_change_per_age = random.uniform(0.0001, 0.0005)),
+]
+
+
+
+
+
 while True:
-   
-    wait = random.uniform(0.001, 0.01)
-    direction = random.choice([-1, 1])
-    offset = random.randint(0, 255)
-    offset = 0
-    step = random.randint(1, 3)
-    mirror = random.choice([True, False])
-    print(f"wait: {wait}, direction: {direction}, offset: {offset}, step: {step}, mirror: {mirror}")
-    for i in range(1024):
-        rainbow_cycle(wait, direction, offset, step, mirror)
-        # color_wipe(wheel(i), wait)
+    buf.fade_all()
+    for brush in brushes:
+        brush.move()
+        brush.draw()
+        # brush.color = wheel(int(brush.age * 0.2) % 255)
+    buf.blend()
+    buf.set_pixels()
+    pixels.show()
+
+
+
+    # wait = random.uniform(0.001, 0.01)
+    # direction = random.choice([-1, 1])
+    # offset = random.randint(0, 255)
+    # offset = 0
+    # step = random.randint(1, 3)
+    # mirror = random.choice([True, False])
+    # print(f"wait: {wait}, direction: {direction}, offset: {offset}, step: {step}, mirror: {mirror}")
+    # for i in range(1024):
+    #     rainbow_cycle(wait, direction, offset, step, mirror)
+    #     # color_wipe(wheel(i), wait)
+
+
